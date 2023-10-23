@@ -1,10 +1,20 @@
 // route to get logged in user's info (needs the token)
 export const getMe = (token) => {
+  if (!token) {
+    return Promise.reject(new Error('No token provided'));
+  }
+
   return fetch('/api/users/me', {
     headers: {
       'Content-Type': 'application/json',
       authorization: `Bearer ${token}`,
     },
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to retrieve user information');
+    }
+    return response.json();
   });
 };
 
@@ -15,6 +25,12 @@ export const createUser = (userData) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(userData),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('User creation failed');
+    }
+    return response.json();
   });
 };
 
@@ -25,11 +41,21 @@ export const loginUser = (userData) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(userData),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+    return response.json();
   });
 };
 
-// save book data for a logged in user
+
 export const saveBook = (bookData, token) => {
+  if (!token) {
+    return Promise.reject(new Error('No token provided'));
+  }
+
   return fetch('/api/users', {
     method: 'PUT',
     headers: {
@@ -37,21 +63,42 @@ export const saveBook = (bookData, token) => {
       authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(bookData),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to save the book');
+    }
+    return response.json();
   });
 };
 
-// remove saved book data for a logged in user
+
 export const deleteBook = (bookId, token) => {
+  if (!token) {
+    return Promise.reject(new Error('No token provided'));
+  }
+
   return fetch(`/api/users/books/${bookId}`, {
     method: 'DELETE',
     headers: {
       authorization: `Bearer ${token}`,
     },
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to delete the book');
+    }
+    return response.json();
   });
 };
 
-// make a search to google books api
-// https://www.googleapis.com/books/v1/volumes?q=harry+potter
+
 export const searchGoogleBooks = (query) => {
-  return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
+  return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Google Books search failed');
+    }
+    return response.json();
+  });
 };
